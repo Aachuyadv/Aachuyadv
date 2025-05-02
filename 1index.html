@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Donatekart Clone</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Support Our Cause</h1>
+            <p>Your donation helps us make a difference.</p>
+        </header>
+
+        <div class="ngo-info">
+            <img src="https://cdn.pixabay.com/photo/2016/11/29/04/17/children-1867466_1280.jpg" alt="Children in NGO" class="ngo-image">
+            <p class="ngo-description">
+                Every child deserves a safe and loving home. At our NGO, we care for children who have lost their parents and provide them with food, education, and emotional support. 
+                Your donation can help give these children a better future.
+            </p>
+        </div>
+        <div class="form-group">
+          <label for="donorName">Your Name:</label>
+          <input type="text" id="donorName" name="donorName" required>
+      </div>      
+            <div class="form-group">
+                <label for="donationAmount">Donation Amount ($):</label>
+                <input type="number" id="donationAmount" name="donationAmount" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="donationType">Donation Type:</label>
+                <select id="donationType" name="donationType" required>
+                    <option value="programA">Program A</option>
+                    <option value="programB">Program B</option>
+                    <option value="generalFund">General Fund</option>
+                </select>
+            </div>
+
+            <button id="rzp-button" type="button">Donate Now</button>
+
+        </form>
+
+        <div id="thankYouMessage" class="hidden">
+            <p>Thank you for your donation, <span id="donorDisplayName"></span>!</p>
+            <p>Amount donated: $<span id="donorDisplayAmount"></span></p>
+        </div>
+
+    <div id="donorDetails">
+        <h2><a href="donors.html" target="_blank">Donor Information</a></h2>
+        <ul id="donorList"></ul>
+    </div>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!--rzpay--><script>
+      document.getElementById('rzp-button').addEventListener('click', function (e) {
+        e.preventDefault();
+    
+        const donorName = document.getElementById('donorName').value;
+        const amount = document.getElementById('donationAmount').value;
+    
+        if (!donorName || !amount || amount < 1) {
+            alert("Please fill out the form correctly.");
+            return;
+        }
+    
+        const options = {
+            "key": "YOUR_PUBLIC_KEY", // Replace with your Razorpay Key
+            "amount": amount * 100, // in paise
+            "currency": "INR",
+            "name": "Your NGO Name",
+            "description": "Donation",
+            "handler": function (response) {
+                alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+    
+                // Save donor details in localStorage
+                const donor = {
+                    name: donorName,
+                    amount: amount,
+                    date: new Date().toLocaleString(),
+                    payment_id: response.razorpay_payment_id
+                };
+    
+                const donors = JSON.parse(localStorage.getItem("donors")) || [];
+                donors.push(donor);
+                localStorage.setItem("donors", JSON.stringify(donors));
+    
+                // Show thank-you message
+                document.getElementById('thankYouMessage').style.display = 'block';
+                document.getElementById('donorDisplayName').textContent = donor.name;
+                document.getElementById('donorDisplayAmount').textContent = donor.amount;
+    
+                // Add to live list
+                const listItem = document.createElement('li');
+                listItem.textContent = `${donor.name} donated ₹${donor.amount}`;
+                document.getElementById('donorList').appendChild(listItem);
+            },
+            "prefill": {
+                "name": donorName,
+                "email": "donor@example.com"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+    
+        const rzp1 = new Razorpay(options);
+        rzp1.open();
+    });
+    
+    </script>
+    <script src="scripts.js"></script> 
+   <!--css -->
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+header p {
+    text-align: center;
+    color: #34495e;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #2ecc71;
+}
+
+#thankYouMessage {
+    display: none;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
+}
+
+#donorDetails {
+    margin-top: 30px;
+}
+
+#donorList {
+    list-style-type: none;
+}
+
+#donorList li {
+    padding: 8px;
+    background-color: #ecf0f1;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+.ngo-info {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.ngo-image {
+    width: 100%;
+    border-radius: 8px;
+    max-height: 250px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.ngo-description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+.campaign-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+@media (max-width: 768px) {
+    .steps, .campaigns {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+    </style>
+   <!--js-->
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+header p {
+    text-align: center;
+    color: #34495e;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #2ecc71;
+}
+
+#thankYouMessage {
+    display: none;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
+}
+
+#donorDetails {
+    margin-top: 30px;
+}
+
+#donorList {
+    list-style-type: none;
+}
+
+#donorList li {
+    padding: 8px;
+    background-color: #ecf0f1;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+    </style>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <h2>How It Works?</h2>
+    <div class="steps">
+      <div class="step">
+        <img src="step1.png" alt="Choose a Cause">
+        <h3>CHOOSE A CAUSE</h3>
+        <p>Browse different campaigns and select a cause.</p>
+      </div>
+      <div class="step">
+        <img src="step2.png" alt="Select Products">
+        <h3>SELECT PRODUCTS</h3>
+        <p>Select products and quantity you wish to donate.</p>
+      </div>
+      <div class="step">
+        <img src="step3.png" alt="Order Processing">
+        <h3>ORDER PROCESSING</h3>
+        <p>Checkout and pay for your contributions.</p>
+      </div>
+      <div class="step">
+        <img src="step4.png" alt="Delivery Report">
+        <h3>DELIVERY REPORT</h3>
+        <p>Donatekart delivers the products and the organisation updates about product utilization.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaign Categories -->
+  <section class="categories">
+    <h2>Categories</h2>
+    <div class="category-list">
+      <span>Urgent</span>
+      <span>Animals</span>
+      <span>Children</span>
+      <span>Elderly</span>
+      <span>Faith</span>
+      <span>Disaster-Relief</span>
+      <span>Hunger</span>
+      <span>Education</span>
+    </div>
+    <div class="campaigns">
+      <!-- Campaign Card 1 -->
+      <div class="campaign-card">
+        <img src="campaign1.jpg" alt="Campaign 1">
+        <h3>This Akshaya Tritiya, Donate Now To Feed Warm Meals</h3>
+        <p>By Vrindavan Sadhu Seva</p>
+        <p><strong>₹5,45,425</strong> Raised | <strong>533</strong> Backers</p>
+        <button onclick="goToPaymentPage('This Akshaya Tritiya, Donate Now To Feed Warm Meals', 545425)">Donate Now</button>
+      </div>
+      <!-- Campaign Card 2 -->
+      <div class="campaign-card">
+        <img src="campaign2.jpg" alt="Campaign 2">
+        <h3>Help Sajesh Take Care of 750+ Animals</h3>
+        <p>By Animal Lives Are Important (ALAI)</p>
+        <p><strong>₹5,995</strong> Raised | <strong>6</strong> Backers</p>
+        <button onclick="goToPaymentPage('Help Sajesh Take Care of 750+ Animals', 545425)">Donate Now</button>
+      </div>
+      <!-- Campaign Card 3 -->
+      <div class="campaign-card">
+        <img src="campaign3.jpg" alt="Campaign 3">
+        <h3>Help Street Vendors Fight The Dangerous Heatwaves</h3>
+        <p>By Donatekart Foundation</p>
+        <p><strong>₹71,532</strong> Raised | <strong>48</strong> Backers</p>
+        <button onclick="goToPaymentPage('Help Street Vendors Fight The Dangerous Heatwaves', 545425)">Donate Now</button>
+      </div>
+    </div>
+  </section>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: #fff;
+}
+h2 {
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 2px solid #fff;
+}
+.how-it-works {
+  background: #1c1c1c;
+  padding: 40px 20px;
+}
+.steps {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+.step {
+  background: #222;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  width: 220px;
+}
+.step img {
+  width: 100px;
+  height: auto;
+  margin-bottom: 15px;
+}
+.categories {
+  padding: 40px 20px;
+}
+.category-list {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+.category-list span {
+  padding: 10px 15px;
+  background: #333;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.campaigns {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+.campaign-card {
+  background: #222;
+  padding: 15px;
+  border-radius: 10px;
+  width: 280px;
+  text-align: center;
+}
+.campaign-card img {
+  width: 100%;
+  border-radius: 10px;
+}
+.campaign-card button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.campaign-card button:hover {
+  background: #ff9000;
+}
+ </style>
+<script>
+  function goToPaymentPage(campaignName, targetAmount) {
+    // Redirect to payment page with campaign data in URL params
+    window.location.href = `payment.html?campaignName=${encodeURIComponent(campaignName)}&targetAmount=${targetAmount}`;
+  }
+</script>
+
+</body>
+</html>

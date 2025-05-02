@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Donation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Donate to Campaign</h1>
+            <p>Make your donation to the selected campaign.</p>
+        </header>
+
+        <div class="campaign-info">
+            <h2 id="campaignName"></h2>
+            <p id="targetAmount"></p>
+        </div>
+
+        <form id="donationForm">
+            <div class="form-group">
+                <label for="donationAmount">Donation Amount ($):</label>
+                <input type="number" id="donationAmount" name="donationAmount" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="donorName">Your Name:</label>
+                <input type="text" id="donorName" name="donorName" required>
+            </div>
+
+            <button type="submit">Donate Now</button>
+        </form>
+
+        <div id="thankYouMessage" class="hidden">
+            <p>Thank you for your donation, <span id="donorDisplayName"></span>!</p>
+            <p>Amount donated: $<span id="donorDisplayAmount"></span></p>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Fetch URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const campaignName = urlParams.get('campaignName');
+        const targetAmount = urlParams.get('targetAmount');
+
+        // Set the campaign details on the page
+        document.getElementById('campaignName').textContent = campaignName;
+        document.getElementById('targetAmount').textContent = `Target Amount: ₹${targetAmount}`;
+
+        // Handle donation form submission
+        document.getElementById('donationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const donorName = document.getElementById('donorName').value;
+            const donationAmount = document.getElementById('donationAmount').value;
+
+            if (!donorName || !donationAmount || donationAmount < 1) {
+                alert("Please fill out the form correctly.");
+                return;
+            }
+
+            const options = {
+                "key": "YOUR_PUBLIC_KEY", // Replace with your Razorpay Key
+                "amount": donationAmount * 100, // in paise
+                "currency": "INR",
+                "name": campaignName,
+                "description": "Donation to campaign",
+                "handler": function (response) {
+                    alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+
+                    // Show thank-you message
+                    document.getElementById('thankYouMessage').style.display = 'block';
+                    document.getElementById('donorDisplayName').textContent = donorName;
+                    document.getElementById('donorDisplayAmount').textContent = donationAmount;
+                },
+                "prefill": {
+                    "name": donorName,
+                    "email": "donor@example.com"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        });
+    </script>
+</body>
+</html>

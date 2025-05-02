@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .donor-list {
+            margin-top: 20px;
+        }
+        .donor {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .child-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Our Generous Donors</h1>
+
+        <div class="donor-list" id="donorList">
+            <!-- Donor entries will appear here -->
+        </div>
+
+        <img src="https://cdn.pixabay.com/photo/2016/11/29/04/17/children-1867466_1280.jpg" alt="NGO Children" class="child-image">
+    </div>
+
+    <script>
+        // For demonstration, static example data
+        const donors = JSON.parse(localStorage.getItem("donors")) || [];
+
+        const donorList = document.getElementById('donorList');
+        donors.forEach(donor => {
+            const div = document.createElement('div');
+            div.classList.add('donor');
+            div.innerHTML = `
+                <strong>Name:</strong> ${donor.name}<br>
+                <strong>Amount:</strong> ₹${donor.amount}<br>
+                <strong>Date:</strong> ${donor.date}
+            `;
+            donorList.appendChild(div);
+        });
+    </script>
+</body>
+</html>
